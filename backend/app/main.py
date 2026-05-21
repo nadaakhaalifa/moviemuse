@@ -1,10 +1,13 @@
 from fastapi import FastAPI
+from app.routes import recommendation_routes
 
 app = FastAPI(
     title="MovieMuse API",
     description="A data-driven movie recommendation platform",
     version="1.0.0"
 )
+
+app.include_router(recommendation_routes.router)
 
 
 @app.get("/")
