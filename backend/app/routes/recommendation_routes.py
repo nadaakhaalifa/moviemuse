@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Query
 from app.ml.content_based import recommend_movies
+from app.ml.collaborative import recommend_collaborative
 
 router = APIRouter(
     prefix="/recommendations",
@@ -26,3 +27,11 @@ def get_content_recommendations(
         "model": "content_based_filtering",
         "recommendations": recommendations
     }
+
+
+@router.get("/collaborative/{user_id}")
+def get_collaborative_recommendations(
+    user_id: int,
+    top_n: int = Query(default=10, ge=1, le=20)
+):
+    return recommend_collaborative(user_id=user_id, top_n=top_n)
