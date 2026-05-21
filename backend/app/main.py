@@ -1,6 +1,9 @@
 from fastapi import FastAPI
+
 from app.routes import recommendation_routes
 from app.routes import movie_routes
+from app.routes import analytics_routes
+
 
 app = FastAPI(
     title="MovieMuse API",
@@ -10,6 +13,7 @@ app = FastAPI(
 
 app.include_router(recommendation_routes.router)
 app.include_router(movie_routes.router)
+app.include_router(analytics_routes.router)
 
 
 @app.get("/")
