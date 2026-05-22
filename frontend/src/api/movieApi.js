@@ -20,7 +20,13 @@ export const getMovieDetails = async (movieId) => {
   return response.data;
 };
 
+export const getSimilarMovies = async (movieId) => {
+  const response = await api.get(`/tmdb/movie/${movieId}/similar?limit=12`);
+  return response.data.results;
+};
+
 export const getContentRecommendations = async (movieTitle) => {
-  const response = await api.get(`/recommendations/content/${movieTitle}?top_n=12`);
+  const encodedTitle = encodeURIComponent(movieTitle);
+  const response = await api.get(`/recommendations/content/${encodedTitle}?top_n=12`);
   return response.data.recommendations;
 };

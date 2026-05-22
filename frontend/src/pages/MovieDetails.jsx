@@ -5,7 +5,7 @@ import { ArrowLeft, Calendar, Clock, Play, Star } from "lucide-react";
 import MovieRow from "../components/MovieRow";
 import {
   getMovieDetails,
-  getContentRecommendations,
+  getSimilarMovies,
 } from "../api/movieApi";
 
 function MovieDetails() {
@@ -23,8 +23,8 @@ function MovieDetails() {
         const movieData = await getMovieDetails(id);
         setMovie(movieData);
 
-        const recommendations = await getContentRecommendations(movieData.title);
-        setSimilarMovies(recommendations);
+        const similar = await getSimilarMovies(id);
+        setSimilarMovies(similar);
       } catch (error) {
         console.error("Failed to load movie details:", error);
       } finally {

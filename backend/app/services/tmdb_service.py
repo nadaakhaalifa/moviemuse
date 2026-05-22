@@ -169,6 +169,30 @@ def get_tmdb_top_rated_movies(limit=12):
 
     return [format_tmdb_list_movie(movie) for movie in movies]
 
+def get_tmdb_similar_movies(tmdb_id, limit=12):
+    if not TMDB_ACCESS_TOKEN:
+        return {"error": "TMDB_ACCESS_TOKEN is missing. Add it to backend/.env"}
+
+    url = f"{TMDB_BASE_URL}/movie/{tmdb_id}/similar"
+
+    response = requests.get(
+        url,
+        headers=get_headers(),
+        params={"page": 1},
+        timeout=10
+    )
+
+    if response.status_code != 200:
+        return {
+            "error": "Failed to fetch similar movies",
+            "status_code": response.status_code,
+            "details": response.text
+        }
+
+    movies = response.json().get("results", [])[:limit]
+
+    return [format_tmdb_list_movie(movie) for movie in movies]
+
 
 if __name__ == "__main__":
     movie = get_tmdb_movie_details(19995)
