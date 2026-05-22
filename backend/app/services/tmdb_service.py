@@ -104,6 +104,71 @@ def get_tmdb_movie_details(tmdb_id):
         "trailers": trailers
     }
 
+def format_tmdb_list_movie(movie):
+    return {
+        "id": movie.get("id"),
+        "title": movie.get("title"),
+        "overview": movie.get("overview"),
+        "poster_path": movie.get("poster_path"),
+        "poster_url": build_poster_url(movie.get("poster_path")),
+        "backdrop_path": movie.get("backdrop_path"),
+        "backdrop_url": build_backdrop_url(movie.get("backdrop_path")),
+        "release_date": movie.get("release_date"),
+        "vote_average": movie.get("vote_average"),
+        "vote_count": movie.get("vote_count"),
+        "popularity": movie.get("popularity")
+    }
+
+
+def get_tmdb_popular_movies(limit=12):
+    if not TMDB_ACCESS_TOKEN:
+        return {"error": "TMDB_ACCESS_TOKEN is missing. Add it to backend/.env"}
+
+    url = f"{TMDB_BASE_URL}/movie/popular"
+
+    response = requests.get(
+        url,
+        headers=get_headers(),
+        params={"page": 1},
+        timeout=10
+    )
+
+    if response.status_code != 200:
+        return {
+            "error": "Failed to fetch popular movies",
+            "status_code": response.status_code,
+            "details": response.text
+        }
+
+    movies = response.json().get("results", [])[:limit]
+
+    return [format_tmdb_list_movie(movie) for movie in movies]
+
+
+def get_tmdb_top_rated_movies(limit=12):
+    if not TMDB_ACCESS_TOKEN:
+        return {"error": "TMDB_ACCESS_TOKEN is missing. Add it to backend/.env"}
+
+    url = f"{TMDB_BASE_URL}/movie/top_rated"
+
+    response = requests.get(
+        url,
+        headers=get_headers(),
+        params={"page": 1},
+        timeout=10
+    )
+
+    if response.status_code != 200:
+        return {
+            "error": "Failed to fetch top rated movies",
+            "status_code": response.status_code,
+            "details": response.text
+        }
+
+    movies = response.json().get("results", [])[:limit]
+
+    return [format_tmdb_list_movie(movie) for movie in movies]
+
 
 if __name__ == "__main__":
     movie = get_tmdb_movie_details(19995)
