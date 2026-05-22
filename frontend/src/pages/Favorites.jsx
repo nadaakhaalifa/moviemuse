@@ -1,16 +1,62 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowLeft, Heart } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, Heart, Lock } from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
 import { getFavorites } from "../utils/favorites";
+import { getAuthUser } from "../utils/authStorage";
 
 function Favorites() {
+  const navigate = useNavigate();
+
   const [favorites, setFavorites] = useState([]);
+  const [authUser, setAuthUser] = useState(null);
 
   useEffect(() => {
+    const user = getAuthUser();
+    setAuthUser(user);
+
+    if (!user) {
+      return;
+    }
+
     setFavorites(getFavorites());
   }, []);
+
+  if (!authUser) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#050505] px-4 text-white">
+        <div className="max-w-md rounded-[2rem] border border-white/10 bg-white/[0.04] p-8 text-center shadow-2xl">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-red-500/10 text-red-400">
+            <Lock size={30} />
+          </div>
+
+          <h1 className="mt-6 text-3xl font-black">Login Required</h1>
+
+          <p className="mt-3 text-sm leading-7 text-zinc-400">
+            Favorites are linked to your MovieMuse account. Please login first
+            to view and manage your saved movies.
+          </p>
+
+          <div className="mt-7 flex justify-center gap-3">
+            <button
+              onClick={() => navigate("/login")}
+              className="rounded-xl bg-red-600 px-5 py-3 text-sm font-bold text-white transition hover:bg-red-700"
+            >
+              Login
+            </button>
+
+            <Link
+              to="/"
+              className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white transition hover:bg-white/20"
+            >
+              Back Home
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#050505] text-white">
@@ -35,8 +81,8 @@ function Favorites() {
             </h1>
 
             <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
-              Movies you saved locally while exploring MovieMuse. Later, this
-              feature can be connected to user accounts and database storage.
+              Welcome back, {authUser.name}. These are the movies you saved
+              while exploring MovieMuse.
             </p>
           </div>
         </div>

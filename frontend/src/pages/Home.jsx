@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link , useNavigate } from "react-router-dom";
 import {
   Search,
   Play,
@@ -14,7 +14,6 @@ import MovieRow from "../components/MovieRow";
 import {
   getPopularMovies,
   getTopRatedMovies,
-  searchMovies,
 } from "../api/movieApi";
 import { getAuthUser, logoutUser } from "../utils/authStorage";
 
@@ -26,6 +25,8 @@ function Home() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [authUser, setAuthUser] = useState(getAuthUser());
+  const navigate = useNavigate();
+  
 
   function handleLogout() {
     logoutUser();
@@ -63,16 +64,10 @@ function Home() {
     event.preventDefault();
 
     if (!query.trim()) {
-      setSearchResults([]);
       return;
     }
 
-    try {
-      const results = await searchMovies(query);
-      setSearchResults(results);
-    } catch (error) {
-      console.error("Search failed:", error);
-    }
+    navigate(`/search?q=${encodeURIComponent(query.trim())}`);
   }
 
   return (
@@ -239,13 +234,6 @@ function Home() {
         id="movies"
         className="mx-auto max-w-[1600px] px-4 pb-20 sm:px-8 lg:px-12"
       >
-        {searchResults.length > 0 && (
-          <MovieRow
-            title={`Search Results for "${query}"`}
-            movies={searchResults}
-            loading={false}
-          />
-        )}
 
         <MovieRow
           title="Popular Movies"

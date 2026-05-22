@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, Play,  Heart, Star, ShieldAlert } from "lucide-react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+import {
+  ArrowLeft,
+  Calendar,
+  Clock,
+  Play,
+  Heart,
+  Star,
+  ShieldAlert,
+} from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
 import {
@@ -8,9 +16,11 @@ import {
   getSimilarMovies,
 } from "../api/movieApi";
 import { isFavorite, toggleFavorite } from "../utils/favorites";
+import { getAuthUser } from "../utils/authStorage";
 
 function MovieDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
 
   const [movie, setMovie] = useState(null);
   const [similarMovies, setSimilarMovies] = useState([]);
@@ -24,7 +34,6 @@ function MovieDetails() {
 
         const movieData = await getMovieDetails(id);
         setMovie(movieData);
-        
         setFavorite(isFavorite(movieData.id));
 
         const similar = await getSimilarMovies(id);
@@ -38,6 +47,18 @@ function MovieDetails() {
 
     loadMovie();
   }, [id]);
+
+  function handleFavoriteClick() {
+    const user = getAuthUser();
+
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    toggleFavorite(movie);
+    setFavorite(isFavorite(movie.id));
+  }
 
   if (loading) {
     return (
@@ -188,10 +209,7 @@ function MovieDetails() {
                 )}
 
                 <button
-                  onClick={() => {
-                    toggleFavorite(movie);
-                    setFavorite(isFavorite(movie.id));
-                  }}
+                  onClick={handleFavoriteClick}
                   className={`inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-bold backdrop-blur transition hover:scale-105 ${
                     favorite
                       ? "border-red-500/40 bg-red-500/20 text-red-200 hover:bg-red-500/30"
