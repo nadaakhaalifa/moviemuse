@@ -15,7 +15,11 @@ import {
   getMovieDetails,
   getSimilarMovies,
 } from "../api/movieApi";
-import { isFavorite, toggleFavorite } from "../utils/favorites";
+import {
+  addFavoriteToBackend,
+  checkFavoriteInBackend,
+  removeFavoriteFromBackend,
+} from "../api/favoriteApi";
 import { getAuthUser } from "../utils/authStorage";
 
 function MovieDetails() {
@@ -26,6 +30,7 @@ function MovieDetails() {
   const [similarMovies, setSimilarMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [favorite, setFavorite] = useState(false);
+  const [favoriteLoading, setFavoriteLoading] = useState(false);
 
   useEffect(() => {
     async function loadMovie() {
@@ -34,7 +39,20 @@ function MovieDetails() {
 
         const movieData = await getMovieDetails(id);
         setMovie(movieData);
-        setFavorite(isFavorite(movieData.id));
+
+        const user = getAuthUser();
+
+        if (user) {
+          try {
+            const favoriteStatus = await checkFavoriteInBackend(movieData.id);
+            setFavorite(Boolean(favoriteStatus.is_favorite));
+          } catch (error) {
+            console.error("Failed to check favorite status:", error);
+            setFavorite(false);
+          }
+        } else {
+          setFavorite(false);
+        }
 
         const similar = await getSimilarMovies(id);
         setSimilarMovies(similar);
@@ -48,7 +66,7 @@ function MovieDetails() {
     loadMovie();
   }, [id]);
 
-  function handleFavoriteClick() {
+  async function handleFavoriteClick() {
     const user = getAuthUser();
 
     if (!user) {
@@ -56,8 +74,25 @@ function MovieDetails() {
       return;
     }
 
-    toggleFavorite(movie);
-    setFavorite(isFavorite(movie.id));
+    if (!movie || favoriteLoading) {
+      return;
+    }
+
+    try {
+      setFavoriteLoading(true);
+
+      if (favorite) {
+        await removeFavoriteFromBackend(movie.id);
+        setFavorite(false);
+      } else {
+        await addFavoriteToBackend(movie);
+        setFavorite(true);
+      }
+    } catch (error) {
+      console.error("Failed to update favorite:", error);
+    } finally {
+      setFavoriteLoading(false);
+    }
   }
 
   if (loading) {
@@ -210,14 +245,19 @@ function MovieDetails() {
 
                 <button
                   onClick={handleFavoriteClick}
-                  className={`inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-bold backdrop-blur transition hover:scale-105 ${
+                  disabled={favoriteLoading}
+                  className={`inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-bold backdrop-blur transition hover:scale-105 disabled:cursor-not-allowed disabled:opacity-60 ${
                     favorite
                       ? "border-red-500/40 bg-red-500/20 text-red-200 hover:bg-red-500/30"
                       : "border-white/10 bg-white/10 text-white hover:bg-white/20"
                   }`}
                 >
                   <Heart size={18} fill={favorite ? "currentColor" : "none"} />
-                  {favorite ? "Remove Favorite" : "Add to Favorites"}
+                  {favoriteLoading
+                    ? "Updating..."
+                    : favorite
+                    ? "Remove Favorite"
+                    : "Add to Favorites"}
                 </button>
               </div>
 

@@ -11,8 +11,8 @@ from app.routes import analytics_routes
 from app.routes import tmdb_routes
 from app.routes import auth_routes
 from app.routes import payment_routes
-
-
+from app.models import favorite
+from app.routes import favorite_routes
 Base.metadata.create_all(bind=engine)
 
 
@@ -39,6 +39,7 @@ app.include_router(analytics_routes.router)
 app.include_router(tmdb_routes.router)
 app.include_router(auth_routes.router)
 app.include_router(payment_routes.router)
+app.include_router(favorite_routes.router)
 
 
 @app.get("/")

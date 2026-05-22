@@ -3,24 +3,41 @@ import { Link, useNavigate } from "react-router-dom";
 import { ArrowLeft, Heart, Lock } from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
-import { getFavorites } from "../utils/favorites";
 import { getAuthUser } from "../utils/authStorage";
+import { getMyFavorites } from "../api/favoriteApi";
 
 function Favorites() {
   const navigate = useNavigate();
 
   const [favorites, setFavorites] = useState([]);
   const [authUser, setAuthUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const user = getAuthUser();
-    setAuthUser(user);
+    async function loadFavorites() {
+      const user = getAuthUser();
+      setAuthUser(user);
 
-    if (!user) {
-      return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+
+        const data = await getMyFavorites();
+
+        setFavorites(data.results || []);
+      } catch (error) {
+        console.error("Failed to load favorites:", error);
+        setFavorites([]);
+      } finally {
+        setLoading(false);
+      }
     }
 
-    setFavorites(getFavorites());
+    loadFavorites();
   }, []);
 
   if (!authUser) {
@@ -81,15 +98,20 @@ function Favorites() {
             </h1>
 
             <p className="mt-5 text-sm leading-7 text-zinc-300 sm:text-base">
-              Welcome back, {authUser.name}. These are the movies you saved
-              while exploring MovieMuse.
+              Welcome back, {authUser.name}. These are your saved movies stored
+              in your MovieMuse account database.
             </p>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-[1500px] px-4 py-10 sm:px-8 lg:px-12">
-        {favorites.length > 0 ? (
+        {loading ? (
+          <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
+            <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-4 border-red-600 border-t-transparent" />
+            <p className="text-zinc-400">Loading your favorites...</p>
+          </div>
+        ) : favorites.length > 0 ? (
           <MovieRow title="Saved Movies" movies={favorites} loading={false} />
         ) : (
           <div className="rounded-3xl border border-white/10 bg-white/[0.04] p-10 text-center">
