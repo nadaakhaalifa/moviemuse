@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link , useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   Play,
@@ -8,6 +8,7 @@ import {
   Star,
   LogOut,
   Heart,
+  Crown,
 } from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
@@ -20,13 +21,12 @@ import { getAuthUser, logoutUser } from "../utils/authStorage";
 function Home() {
   const [popularMovies, setPopularMovies] = useState([]);
   const [topRatedMovies, setTopRatedMovies] = useState([]);
-  const [searchResults, setSearchResults] = useState([]);
   const [heroMovie, setHeroMovie] = useState(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [authUser, setAuthUser] = useState(getAuthUser());
+
   const navigate = useNavigate();
-  
 
   function handleLogout() {
     logoutUser();
@@ -60,7 +60,7 @@ function Home() {
     loadMovies();
   }, []);
 
-  async function handleSearch(event) {
+  function handleSearch(event) {
     event.preventDefault();
 
     if (!query.trim()) {
@@ -73,7 +73,7 @@ function Home() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
       <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-black/75 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center lg:justify-between sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-4 sm:px-8 lg:flex-row lg:items-center lg:justify-between lg:px-12">
           <div className="flex items-center justify-between">
             <Link
               to="/"
@@ -102,6 +102,14 @@ function Home() {
           </form>
 
           <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to="/pricing"
+              className="inline-flex items-center gap-2 rounded-full border border-yellow-500/20 bg-yellow-500/10 px-4 py-2 text-sm font-bold text-yellow-200 transition hover:bg-yellow-500/20"
+            >
+              <Crown size={15} />
+              Premium
+            </Link>
+
             <Link
               to="/favorites"
               className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-200 transition hover:bg-red-500/20"
@@ -234,7 +242,6 @@ function Home() {
         id="movies"
         className="mx-auto max-w-[1600px] px-4 pb-20 sm:px-8 lg:px-12"
       >
-
         <MovieRow
           title="Popular Movies"
           movies={popularMovies}
