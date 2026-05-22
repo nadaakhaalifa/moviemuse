@@ -1,6 +1,11 @@
+import { Link } from "react-router-dom";
+
 function MovieCard({ movie }) {
   return (
-    <article className="group w-[132px] shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:border-red-500/50 sm:w-[160px] md:w-[180px] lg:w-[200px]">
+    <Link
+      to={`/movie/${movie.id}`}
+      className="group w-[132px] shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:border-red-500/50 sm:w-[160px] md:w-[180px] lg:w-[200px]"
+    >
       <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-900">
         {movie.poster_url ? (
           <img
@@ -28,7 +33,7 @@ function MovieCard({ movie }) {
           <span>{movie.release_date?.slice(0, 4) || "N/A"}</span>
         </div>
       </div>
-    </article>
+    </Link>
   );
 }
 
