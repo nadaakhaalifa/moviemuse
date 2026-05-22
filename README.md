@@ -1689,5 +1689,3 @@ Completed:
 ## Summary
 
 MovieMuse is a complete full-stack recommendation platform that demonstrates how machine learning, backend APIs, frontend engineering, authentication, subscription systems, and user-specific data can be combined into one practical product.
-
-The project is designed not only as a movie recommendation system, but also as a production-style software application suitable for a bachelor thesis, portfolio project, and technical demonstration.
