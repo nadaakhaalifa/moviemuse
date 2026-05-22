@@ -9,6 +9,7 @@ import {
   LogOut,
   Heart,
   Crown,
+  UserCircle,
 } from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
@@ -16,6 +17,7 @@ import {
   getPopularMovies,
   getTopRatedMovies,
 } from "../api/movieApi";
+import { getMySubscription } from "../api/paymentApi";
 import { getAuthUser, logoutUser } from "../utils/authStorage";
 
 function Home() {
@@ -25,12 +27,15 @@ function Home() {
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [authUser, setAuthUser] = useState(getAuthUser());
+  const [isPremium, setIsPremium] = useState(false);
+  const [checkingSubscription, setCheckingSubscription] = useState(false);
 
   const navigate = useNavigate();
 
   function handleLogout() {
     logoutUser();
     setAuthUser(null);
+    setIsPremium(false);
   }
 
   useEffect(() => {
@@ -59,6 +64,30 @@ function Home() {
 
     loadMovies();
   }, []);
+
+  useEffect(() => {
+    async function loadSubscription() {
+      if (!authUser) {
+        setIsPremium(false);
+        return;
+      }
+
+      try {
+        setCheckingSubscription(true);
+
+        const subscription = await getMySubscription();
+
+        setIsPremium(Boolean(subscription.is_premium));
+      } catch (error) {
+        console.error("Failed to load subscription:", error);
+        setIsPremium(false);
+      } finally {
+        setCheckingSubscription(false);
+      }
+    }
+
+    loadSubscription();
+  }, [authUser]);
 
   function handleSearch(event) {
     event.preventDefault();
@@ -102,13 +131,23 @@ function Home() {
           </form>
 
           <div className="flex flex-wrap items-center gap-2">
-            <Link
-              to="/pricing"
-              className="inline-flex items-center gap-2 rounded-full border border-yellow-500/20 bg-yellow-500/10 px-4 py-2 text-sm font-bold text-yellow-200 transition hover:bg-yellow-500/20"
-            >
-              <Crown size={15} />
-              Premium
-            </Link>
+            {authUser && isPremium ? (
+              <Link
+                to="/profile"
+                className="inline-flex items-center gap-2 rounded-full border border-yellow-500/30 bg-yellow-500/10 px-4 py-2 text-sm font-black text-yellow-200 transition hover:bg-yellow-500/20"
+              >
+                <Crown size={15} fill="currentColor" />
+                Premium
+              </Link>
+            ) : (
+              <Link
+                to="/pricing"
+                className="inline-flex items-center gap-2 rounded-full border border-yellow-500/20 bg-yellow-500/10 px-4 py-2 text-sm font-bold text-yellow-200 transition hover:bg-yellow-500/20"
+              >
+                <Crown size={15} />
+                {checkingSubscription ? "Checking..." : "Upgrade"}
+              </Link>
+            )}
 
             <Link
               to="/favorites"
@@ -120,9 +159,13 @@ function Home() {
 
             {authUser ? (
               <>
-                <span className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white">
+                <Link
+                  to="/profile"
+                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/20"
+                >
+                  <UserCircle size={15} />
                   {authUser.name}
-                </span>
+                </Link>
 
                 <button
                   onClick={handleLogout}

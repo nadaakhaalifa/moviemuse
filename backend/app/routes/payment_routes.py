@@ -123,6 +123,49 @@ def my_subscription(
     }
 
 
+@router.post("/confirm-checkout-session")
+def confirm_checkout_session(
+    session_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if not stripe.api_key:
+        raise HTTPException(
+            status_code=500,
+            detail="STRIPE_SECRET_KEY is missing"
+        )
+
+    try:
+        session = stripe.checkout.Session.retrieve(session_id)
+
+        if session.payment_status != "paid":
+            raise HTTPException(
+                status_code=400,
+                detail="Checkout session is not paid yet"
+            )
+
+        subscription = get_or_create_subscription(db, current_user.id)
+
+        subscription.stripe_customer_id = session.customer
+        subscription.stripe_subscription_id = session.subscription
+        subscription.status = "active"
+        subscription.updated_at = datetime.utcnow()
+
+        db.commit()
+        db.refresh(subscription)
+
+        return {
+            "message": "Subscription confirmed successfully",
+            "is_premium": True,
+            "status": subscription.status
+        }
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=400,
+            detail=str(error)
+        )
+
 @router.post("/webhook")
 async def stripe_webhook(
     request: Request,
