@@ -11,7 +11,7 @@ export const getTopRatedMovies = async () => {
 };
 
 export const searchMovies = async (query) => {
-  const response = await api.get(`/movies/search?query=${query}&limit=12`);
+  const response = await api.get(`/movies/search?query=${encodeURIComponent(query)}&limit=12`);
   return response.data.results;
 };
 
@@ -21,12 +21,12 @@ export const getMovieDetails = async (movieId) => {
 };
 
 export const getSimilarMovies = async (movieId) => {
-  const response = await api.get(`/tmdb/movie/${movieId}/similar?limit=12`);
+  const response = await api.get(`/tmdb/movie/${movieId}/similar?limit=15`);
   return response.data.results;
 };
 
 export const getContentRecommendations = async (movieTitle) => {
   const encodedTitle = encodeURIComponent(movieTitle);
-  const response = await api.get(`/recommendations/content/${encodedTitle}?top_n=12`);
+  const response = await api.get(`/recommendations/content/${encodedTitle}?top_n=15`);
   return response.data.recommendations;
 };
