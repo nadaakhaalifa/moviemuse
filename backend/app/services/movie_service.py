@@ -2,6 +2,8 @@ import ast
 import pandas as pd
 from pathlib import Path
 
+from app.services.tmdb_service import get_tmdb_movie_details
+
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 
@@ -62,9 +64,40 @@ def load_movies():
 MOVIES_DF = load_movies()
 
 
-def movie_to_dict(movie):
+def get_tmdb_images(movie_id):
+    tmdb_data = get_tmdb_movie_details(movie_id)
+
+    if tmdb_data.get("error"):
+        return {
+            "poster_path": None,
+            "poster_url": None,
+            "backdrop_path": None,
+            "backdrop_url": None
+        }
+
     return {
-        "id": int(movie["id"]),
+        "poster_path": tmdb_data.get("poster_path"),
+        "poster_url": tmdb_data.get("poster_url"),
+        "backdrop_path": tmdb_data.get("backdrop_path"),
+        "backdrop_url": tmdb_data.get("backdrop_url")
+    }
+
+
+def movie_to_dict(movie, include_images=True):
+    movie_id = int(movie["id"])
+
+    images = {
+        "poster_path": None,
+        "poster_url": None,
+        "backdrop_path": None,
+        "backdrop_url": None
+    }
+
+    if include_images:
+        images = get_tmdb_images(movie_id)
+
+    return {
+        "id": movie_id,
         "title": movie["title_x"],
         "overview": movie["overview"],
         "genres": movie["genres_list"],
@@ -77,7 +110,11 @@ def movie_to_dict(movie):
         "vote_count": int(movie["vote_count"]),
         "popularity": float(movie["popularity"]),
         "budget": int(movie["budget"]),
-        "revenue": int(movie["revenue"])
+        "revenue": int(movie["revenue"]),
+        "poster_path": images["poster_path"],
+        "poster_url": images["poster_url"],
+        "backdrop_path": images["backdrop_path"],
+        "backdrop_url": images["backdrop_url"]
     }
 
 
