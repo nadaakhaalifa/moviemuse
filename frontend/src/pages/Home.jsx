@@ -141,6 +141,12 @@ function Home() {
                 <BarChart3 size={18} />
                 View Analytics
               </Link>
+              <Link
+                to="/favorites"
+                className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-3 text-sm font-bold text-red-200 backdrop-blur transition hover:scale-105 hover:bg-red-500/20 sm:px-6"
+              >
+                Favorites
+            </Link>
             </div>
           </div>
 

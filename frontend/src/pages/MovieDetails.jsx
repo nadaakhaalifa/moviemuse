@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, Play, Star, ShieldAlert } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Play,  Heart, Star, ShieldAlert } from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
 import {
   getMovieDetails,
   getSimilarMovies,
 } from "../api/movieApi";
+import { isFavorite, toggleFavorite } from "../utils/favorites";
 
 function MovieDetails() {
   const { id } = useParams();
@@ -14,6 +15,7 @@ function MovieDetails() {
   const [movie, setMovie] = useState(null);
   const [similarMovies, setSimilarMovies] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [favorite, setFavorite] = useState(false);
 
   useEffect(() => {
     async function loadMovie() {
@@ -22,6 +24,8 @@ function MovieDetails() {
 
         const movieData = await getMovieDetails(id);
         setMovie(movieData);
+        
+        setFavorite(isFavorite(movieData.id));
 
         const similar = await getSimilarMovies(id);
         setSimilarMovies(similar);
@@ -183,8 +187,19 @@ function MovieDetails() {
                   </a>
                 )}
 
-                <button className="rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:scale-105 hover:bg-white/20">
-                  Add to Watchlist
+                <button
+                  onClick={() => {
+                    toggleFavorite(movie);
+                    setFavorite(isFavorite(movie.id));
+                  }}
+                  className={`inline-flex items-center gap-2 rounded-xl border px-5 py-3 text-sm font-bold backdrop-blur transition hover:scale-105 ${
+                    favorite
+                      ? "border-red-500/40 bg-red-500/20 text-red-200 hover:bg-red-500/30"
+                      : "border-white/10 bg-white/10 text-white hover:bg-white/20"
+                  }`}
+                >
+                  <Heart size={18} fill={favorite ? "currentColor" : "none"} />
+                  {favorite ? "Remove Favorite" : "Add to Favorites"}
                 </button>
               </div>
 
