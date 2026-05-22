@@ -1,6 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Play, BarChart3, Sparkles, Star } from "lucide-react";
+import {
+  Search,
+  Play,
+  BarChart3,
+  Sparkles,
+  Star,
+  LogOut,
+  Heart,
+} from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
 import {
@@ -8,6 +16,7 @@ import {
   getTopRatedMovies,
   searchMovies,
 } from "../api/movieApi";
+import { getAuthUser, logoutUser } from "../utils/authStorage";
 
 function Home() {
   const [popularMovies, setPopularMovies] = useState([]);
@@ -16,6 +25,12 @@ function Home() {
   const [heroMovie, setHeroMovie] = useState(null);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [authUser, setAuthUser] = useState(getAuthUser());
+
+  function handleLogout() {
+    logoutUser();
+    setAuthUser(null);
+  }
 
   useEffect(() => {
     async function loadMovies() {
@@ -63,20 +78,23 @@ function Home() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
       <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-black/75 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-4 lg:flex-row lg:items-center lg:justify-between sm:px-8 lg:px-12">
           <div className="flex items-center justify-between">
-            <Link to="/" className="text-xl font-black tracking-wide text-red-600 sm:text-2xl">
+            <Link
+              to="/"
+              className="text-xl font-black tracking-wide text-red-600 sm:text-2xl"
+            >
               MovieMuse
             </Link>
 
-            <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-red-400 sm:hidden">
+            <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-red-400 lg:hidden">
               AI Movies
             </span>
           </div>
 
           <form
             onSubmit={handleSearch}
-            className="flex w-full items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2.5 shadow-lg shadow-black/20 sm:max-w-[420px] lg:max-w-[520px]"
+            className="flex w-full items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2.5 shadow-lg shadow-black/20 lg:max-w-[520px]"
           >
             <Search size={17} className="shrink-0 text-zinc-400" />
 
@@ -87,11 +105,53 @@ function Home() {
               className="w-full bg-transparent text-sm text-white outline-none placeholder:text-zinc-500"
             />
           </form>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Link
+              to="/favorites"
+              className="inline-flex items-center gap-2 rounded-full border border-red-500/20 bg-red-500/10 px-4 py-2 text-sm font-bold text-red-200 transition hover:bg-red-500/20"
+            >
+              <Heart size={15} fill="currentColor" />
+              Favorites
+            </Link>
+
+            {authUser ? (
+              <>
+                <span className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white">
+                  {authUser.name}
+                </span>
+
+                <button
+                  onClick={handleLogout}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/20"
+                >
+                  <LogOut size={15} />
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="rounded-full border border-white/10 bg-white/10 px-4 py-2 text-sm font-bold text-white transition hover:bg-white/20"
+                >
+                  Login
+                </Link>
+
+                <Link
+                  to="/register"
+                  className="rounded-full bg-red-600 px-4 py-2 text-sm font-bold text-white transition hover:bg-red-700"
+                >
+                  Register
+                </Link>
+              </>
+            )}
+          </div>
         </div>
       </nav>
 
       <section
-        className="relative min-h-[760px] bg-cover bg-center pt-28 sm:pt-24"
+        className="relative min-h-[820px] bg-cover bg-center pt-44 lg:pt-28"
         style={{
           backgroundImage: heroMovie?.backdrop_url
             ? `linear-gradient(to right, rgba(5,5,5,1) 0%, rgba(5,5,5,0.88) 32%, rgba(5,5,5,0.35) 100%), linear-gradient(to top, #050505 0%, rgba(5,5,5,0.05) 45%), url(${heroMovie.backdrop_url})`
@@ -141,12 +201,6 @@ function Home() {
                 <BarChart3 size={18} />
                 View Analytics
               </Link>
-              <Link
-                to="/favorites"
-                className="flex items-center gap-2 rounded-xl border border-red-500/20 bg-red-500/10 px-5 py-3 text-sm font-bold text-red-200 backdrop-blur transition hover:scale-105 hover:bg-red-500/20 sm:px-6"
-              >
-                Favorites
-            </Link>
             </div>
           </div>
 
@@ -181,7 +235,10 @@ function Home() {
         </div>
       </section>
 
-      <div id="movies" className="mx-auto max-w-[1600px] px-4 pb-20 sm:px-8 lg:px-12">
+      <div
+        id="movies"
+        className="mx-auto max-w-[1600px] px-4 pb-20 sm:px-8 lg:px-12"
+      >
         {searchResults.length > 0 && (
           <MovieRow
             title={`Search Results for "${query}"`}
