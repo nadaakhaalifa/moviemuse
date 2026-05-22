@@ -13,13 +13,25 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancel from "./pages/PaymentCancel";
 import Profile from "./pages/Profile";
 
+import PremiumGate from "./components/PremiumGate";
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+
         <Route path="/movie/:id" element={<MovieDetails />} />
-        <Route path="/analytics" element={<Analytics />} />
+
+        <Route
+          path="/analytics"
+          element={
+            <PremiumGate>
+              <Analytics />
+            </PremiumGate>
+          }
+        />
+
         <Route path="/favorites" element={<Favorites />} />
         <Route path="/register" element={<Register />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
