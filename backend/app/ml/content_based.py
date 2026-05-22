@@ -4,6 +4,8 @@ from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
+from app.services.movie_service import get_movie_by_id
+
 
 BASE_DIR = Path(__file__).resolve().parents[3]
 
@@ -78,7 +80,7 @@ def prepare_content_data():
         "release_date"
     ]
 
-    movies = movies[selected_columns]
+    movies = movies[selected_columns].copy()
 
     movies.rename(columns={"title_x": "title"}, inplace=True)
 
@@ -106,9 +108,12 @@ def prepare_content_data():
 
 
 def build_similarity_matrix(movies):
-    vectorizer = TfidfVectorizer(stop_words="english", max_features=5000)
-    feature_matrix = vectorizer.fit_transform(movies["combined_features"])
+    vectorizer = TfidfVectorizer(
+        stop_words="english",
+        max_features=5000
+    )
 
+    feature_matrix = vectorizer.fit_transform(movies["combined_features"])
     similarity_matrix = cosine_similarity(feature_matrix)
 
     return similarity_matrix
@@ -128,6 +133,7 @@ def recommend_movies(movie_title, top_n=10):
     movie_index = matches.index[0]
 
     similarity_scores = list(enumerate(similarity_matrix[movie_index]))
+
     similarity_scores = sorted(
         similarity_scores,
         key=lambda x: x[1],
@@ -140,14 +146,30 @@ def recommend_movies(movie_title, top_n=10):
 
     for index, score in similar_movies:
         movie = movies.iloc[index]
+        movie_id = int(movie["id"])
 
-        recommendations.append({
-            "id": int(movie["id"]),
-            "title": movie["title"],
-            "score": round(float(score), 4),
-            "vote_average": float(movie["vote_average"]),
-            "popularity": float(movie["popularity"])
-        })
+        movie_details = get_movie_by_id(movie_id)
+
+        if movie_details:
+            recommendations.append({
+                **movie_details,
+                "content_similarity_score": round(float(score), 4),
+                "recommendation_type": "content_based"
+            })
+        else:
+            recommendations.append({
+                "id": movie_id,
+                "title": movie["title"],
+                "overview": movie["overview"],
+                "score": round(float(score), 4),
+                "content_similarity_score": round(float(score), 4),
+                "vote_average": float(movie["vote_average"]),
+                "popularity": float(movie["popularity"]),
+                "release_date": movie["release_date"],
+                "poster_url": None,
+                "backdrop_url": None,
+                "recommendation_type": "content_based"
+            })
 
     return recommendations
 
