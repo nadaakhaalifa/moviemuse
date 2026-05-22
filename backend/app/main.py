@@ -1,10 +1,16 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.database import Base, engine
+from app.models import user
 from app.routes import recommendation_routes
 from app.routes import movie_routes
 from app.routes import analytics_routes
 from app.routes import tmdb_routes
+from app.routes import auth_routes
+
+
+Base.metadata.create_all(bind=engine)
 
 
 app = FastAPI(
@@ -28,6 +34,7 @@ app.include_router(recommendation_routes.router)
 app.include_router(movie_routes.router)
 app.include_router(analytics_routes.router)
 app.include_router(tmdb_routes.router)
+app.include_router(auth_routes.router)
 
 
 @app.get("/")
