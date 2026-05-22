@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Calendar, Clock, Play, Star } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Play, Star, ShieldAlert } from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
 import {
@@ -60,6 +60,7 @@ function MovieDetails() {
   }
 
   const trailer = movie.trailers?.[0];
+  const parentalAdvice = movie.parental_advice;
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#050505] text-white">
@@ -124,11 +125,30 @@ function MovieDetails() {
                   <Clock size={15} />
                   {movie.runtime || "N/A"} min
                 </span>
+
+                {parentalAdvice?.label && (
+                  <span className="flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 font-bold text-red-300">
+                    <ShieldAlert size={15} />
+                    {parentalAdvice.label}
+                  </span>
+                )}
               </div>
 
               <p className="mt-6 max-w-3xl text-sm leading-7 text-zinc-200 sm:text-base xl:text-lg">
                 {movie.overview}
               </p>
+
+              {parentalAdvice?.description && (
+                <div className="mt-5 max-w-3xl rounded-2xl border border-red-500/20 bg-red-500/10 p-4 text-sm">
+                  <div className="flex items-center gap-2 font-bold text-red-300">
+                    <ShieldAlert size={18} />
+                    Parental Advice
+                  </div>
+                  <p className="mt-2 leading-6 text-red-100/80">
+                    {parentalAdvice.description}
+                  </p>
+                </div>
+              )}
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 <div className="rounded-2xl border border-white/10 bg-black/35 p-4 backdrop-blur">

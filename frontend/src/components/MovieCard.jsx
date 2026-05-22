@@ -1,12 +1,14 @@
 import { Link } from "react-router-dom";
 
 function MovieCard({ movie }) {
+  const advice = movie.parental_advice;
+
   return (
     <Link
       to={`/movie/${movie.id}`}
       className="group w-[132px] shrink-0 cursor-pointer overflow-hidden rounded-2xl border border-white/10 bg-zinc-950 shadow-2xl transition-all duration-300 hover:-translate-y-2 hover:border-red-500/50 sm:w-[160px] md:w-[180px] lg:w-[200px]"
     >
-      <div className="aspect-[2/3] w-full overflow-hidden bg-zinc-900">
+      <div className="relative aspect-[2/3] w-full overflow-hidden bg-zinc-900">
         {movie.poster_url ? (
           <img
             src={movie.poster_url}
@@ -16,6 +18,12 @@ function MovieCard({ movie }) {
         ) : (
           <div className="flex h-full items-center justify-center px-3 text-center text-xs text-zinc-500">
             No Poster
+          </div>
+        )}
+
+        {advice?.label && (
+          <div className="absolute left-2 top-2 rounded-md border border-white/20 bg-black/75 px-2 py-1 text-[10px] font-black text-white backdrop-blur">
+            {advice.label}
           </div>
         )}
       </div>

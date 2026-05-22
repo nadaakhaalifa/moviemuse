@@ -101,10 +101,43 @@ def get_tmdb_movie_details(tmdb_id):
         "director": director,
         "cast": cast,
         "keywords": keywords,
-        "trailers": trailers
+        "trailers": trailers,
+        "adult": data.get("adult", False),
+        "parental_advice": get_parental_advice(
+            data.get("adult", False),
+            [genre["name"] for genre in data.get("genres", [])]
+        ),
     }
 
+def get_parental_advice(is_adult, genres=None):
+    genres = genres or []
+
+    if is_adult:
+        return {
+            "label": "18+",
+            "description": "Adult content. Viewer discretion is advised.",
+            "level": "restricted"
+        }
+
+    mature_genres = ["Horror", "Crime", "Thriller", "War"]
+
+    if any(genre in mature_genres for genre in genres):
+        return {
+            "label": "16+",
+            "description": "May contain mature themes, violence, or intense scenes.",
+            "level": "mature"
+        }
+
+    return {
+        "label": "Family",
+        "description": "Suitable for general audiences.",
+        "level": "general"
+    }
+
+
 def format_tmdb_list_movie(movie):
+    is_adult = movie.get("adult", False)
+
     return {
         "id": movie.get("id"),
         "title": movie.get("title"),
@@ -116,9 +149,10 @@ def format_tmdb_list_movie(movie):
         "release_date": movie.get("release_date"),
         "vote_average": movie.get("vote_average"),
         "vote_count": movie.get("vote_count"),
-        "popularity": movie.get("popularity")
+        "popularity": movie.get("popularity"),
+        "adult": is_adult,
+        "parental_advice": get_parental_advice(is_adult)
     }
-
 
 def get_tmdb_popular_movies(limit=12):
     if not TMDB_ACCESS_TOKEN:

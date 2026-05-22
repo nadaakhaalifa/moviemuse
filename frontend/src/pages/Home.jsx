@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Search, Play, BarChart3, Sparkles, Star } from "lucide-react";
 
 import MovieRow from "../components/MovieRow";
@@ -64,9 +65,9 @@ function Home() {
       <nav className="fixed top-0 z-50 w-full border-b border-white/5 bg-black/75 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1600px] flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-8 lg:px-12">
           <div className="flex items-center justify-between">
-            <div className="text-xl font-black tracking-wide text-red-600 sm:text-2xl">
+            <Link to="/" className="text-xl font-black tracking-wide text-red-600 sm:text-2xl">
               MovieMuse
-            </div>
+            </Link>
 
             <span className="rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-red-400 sm:hidden">
               AI Movies
@@ -125,15 +126,21 @@ function Home() {
             </p>
 
             <div className="mt-8 flex flex-wrap gap-3">
-              <button className="flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-black transition hover:scale-105 hover:bg-zinc-200 sm:px-6">
+              <a
+                href="#movies"
+                className="flex items-center gap-2 rounded-xl bg-white px-5 py-3 text-sm font-bold text-black transition hover:scale-105 hover:bg-zinc-200 sm:px-6"
+              >
                 <Play size={18} fill="black" />
                 Explore Movies
-              </button>
+              </a>
 
-              <button className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:scale-105 hover:bg-white/20 sm:px-6">
+              <Link
+                to="/analytics"
+                className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/10 px-5 py-3 text-sm font-bold text-white backdrop-blur transition hover:scale-105 hover:bg-white/20 sm:px-6"
+              >
                 <BarChart3 size={18} />
                 View Analytics
-              </button>
+              </Link>
             </div>
           </div>
 
@@ -168,7 +175,7 @@ function Home() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-[1600px] px-4 pb-20 sm:px-8 lg:px-12">
+      <div id="movies" className="mx-auto max-w-[1600px] px-4 pb-20 sm:px-8 lg:px-12">
         {searchResults.length > 0 && (
           <MovieRow
             title={`Search Results for "${query}"`}
